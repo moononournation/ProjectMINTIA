@@ -1,38 +1,44 @@
 /* Key matrix config */
 #define KEY_ROWS 5
-#define KEY_COLS 13 /* pins 0-12 */
+#define KEY_COLS 13
 const int row_pins[KEY_ROWS] = {13, 14, 15, 26, 27};
+const int col_pins[KEY_COLS] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
 
-
-uint16_t old_key_state[KEY_ROWS] = {0};
+uint32_t old_key_state[KEY_ROWS] = {0};
+uint32_t key_state[KEY_ROWS] = {0};
+uint32_t key_mask;
 
 void setup()
 {
   Serial.begin(115200);
   Serial.println("MINTIA Keyboard");
 
+  // init row pins
   for (int i = 0; i < KEY_ROWS; ++i)
   {
     pinMode(row_pins[i], OUTPUT);
     digitalWrite(row_pins[i], HIGH);
   }
+
+  // init column pins
+  key_mask = 0;
   for (int j = 0; j < KEY_COLS; ++j)
   {
-    pinMode(j, INPUT_PULLUP);
+    pinMode(col_pins[j], INPUT_PULLUP);
+    key_mask |= 1 << col_pins[j];
   }
 }
 
 void loop()
 {
-  uint16_t key_state[KEY_ROWS] = {0};
   for (int i = 0; i < KEY_ROWS; ++i)
   {
     digitalWrite(row_pins[i], LOW);
-    key_state[i] = sio_hw->gpio_in & 0b0001111111111111;
+    key_state[i] = sio_hw->gpio_in & key_mask;
     digitalWrite(row_pins[i], HIGH);
   }
 
-  uint16_t oks, ks, bit;
+  uint32_t oks, ks, bit;
   for (int i = 0; i < KEY_ROWS; ++i)
   {
     oks = old_key_state[i];
@@ -41,7 +47,7 @@ void loop()
     {
       for (int j = 0; j < KEY_COLS; ++j)
       {
-        bit = 1 << j;
+        bit = 1 << col_pins[j];
         if ((ks & bit) != (oks & bit)) {
           if (ks & bit) {
             Serial.printf("row: %d, col: %d, released\n", i, j);
