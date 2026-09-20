@@ -1,6 +1,4 @@
-#define I2C_DEV_ADDR 0x55
-#define I2C_SDA 5
-#define I2C_SCL 6
+#define I2C_KEYBOARD_ADDR 0x55
 
 #include <Wire.h>
 
@@ -77,7 +75,7 @@ Serial.printf("%d, %d\n", touch_last_x, touch_last_y);
 static void my_keyboard_read(lv_indev_t * indev, lv_indev_data_t * data)
 {
   data->state = LV_INDEV_STATE_RELEASED;
-  Wire.requestFrom(I2C_DEV_ADDR, 1);
+  Wire.requestFrom(I2C_KEYBOARD_ADDR, 1);
   if (Wire.available() > 0) {
     while (Wire.available() > 0) {
       char c = Wire.read();
@@ -104,7 +102,7 @@ void setup()
   Serial.println(LVGL_Arduino);
 
   Wire.begin(I2C_SDA, I2C_SCL);
-  Wire.requestFrom(I2C_DEV_ADDR, 1);
+  Wire.requestFrom(I2C_KEYBOARD_ADDR, 1);
   if (Wire.read() == -1)
   {
     Serial.println("I2C Keyboad not online!");
