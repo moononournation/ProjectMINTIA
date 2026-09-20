@@ -9,20 +9,22 @@ const int col_pins[KEY_COLS] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
  * @brief key constant definition
  * https://github.com/earlephilhower/Keyboard/blob/master/src/HID_Keyboard.h
  */
+/* extra custom key */
+#define KEY_FN 0
 
 uint8_t key_map[KEY_ROWS][KEY_COLS] = {
-  {KEY_ESC, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', KEY_BACKSPACE},
-  {KEY_TAB, 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']'},
-  {'`', KEY_CAPS_LOCK, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', KEY_RETURN},
-  {'\'', KEY_LEFT_SHIFT, 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', KEY_HOME, KEY_UP_ARROW, KEY_END},
-  {0, KEY_LEFT_CTRL, KEY_LEFT_ALT, KEY_LEFT_GUI, KEY_DELETE, '\\', ' ', '/', '=', '.', KEY_LEFT_ARROW, KEY_DOWN_ARROW, KEY_RIGHT_ARROW},
+    {KEY_ESC, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', KEY_BACKSPACE},
+    {KEY_TAB, 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']'},
+    {'`', KEY_CAPS_LOCK, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', KEY_RETURN},
+    {'\'', KEY_LEFT_SHIFT, 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', KEY_HOME, KEY_UP_ARROW, KEY_END},
+    {KEY_FN, KEY_LEFT_CTRL, KEY_LEFT_ALT, KEY_LEFT_GUI, KEY_DELETE, '\\', ' ', '/', '=', '.', KEY_LEFT_ARROW, KEY_DOWN_ARROW, KEY_RIGHT_ARROW},
 };
 
 #define FN_ROW_IDX 4
 #define FN_COL_IDX 0
 #define FN_KEY_PAIRS 20
 uint8_t key_fn_map[FN_KEY_PAIRS * 2] = {
-  /* from and to key pair */
+    /* from and to key pair */
   '1', KEY_F1,
   '2', KEY_F2,
   '3', KEY_F3,
@@ -94,22 +96,29 @@ void loop()
       for (int j = 0; j < KEY_COLS; ++j)
       {
         bit = 1 << col_pins[j];
-        if ((ks & bit) != (oks & bit)) {
+        if ((ks & bit) != (oks & bit))
+        {
           uint8_t k = key_map[i][j];
-          if (fn_pressed) {
+          if (fn_pressed)
+          {
             // translate fn key
-            for (int f = 0; f < (FN_KEY_PAIRS * 2); f += 2) {
-              if (k == key_fn_map[f]) {
+            for (int f = 0; f < (FN_KEY_PAIRS * 2); f += 2)
+            {
+              if (k == key_fn_map[f])
+              {
                 Serial.printf("translate %d to %d./n", k, key_fn_map[f + 1]);
                 k = key_fn_map[f + 1];
               }
             }
           }
 
-          if (ks & bit) {
+          if (ks & bit)
+          {
             Keyboard.release(k);
             Serial.printf("row: %d, col: %d, released\n", i, j);
-          } else {
+          }
+          else
+          {
             has_key_pressed = true;
             Keyboard.press(k);
             Serial.printf("row: %d, col: %d, pressed\n", i, j);
@@ -118,7 +127,9 @@ void loop()
       }
     }
   }
-  if (!has_key_pressed) {
+
+  if (!has_key_pressed)
+  {
     Keyboard.releaseAll();
   }
 
